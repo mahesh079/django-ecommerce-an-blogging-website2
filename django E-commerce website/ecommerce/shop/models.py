@@ -44,5 +44,5 @@ class orderupdate(models.Model):
     timestamp=models.DateField(auto_now_add=True)
     # orderdate=models.DateField(auto_now_add=)
 
-    def __str__(self):
-        return self.status[0:12]+ "..."
+    # def __str__(self):
+    #     return self.status[0:12]+ "..."

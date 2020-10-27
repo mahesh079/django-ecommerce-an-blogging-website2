@@ -1,1 +1,30 @@
 {% extends 'blog/basic.html' %}
+{% block css %}
+.cards{
+  display: flex;
+  flex-wrap: wrap;
+}
+.card{
+  margin-left: 5px;
+}
+.card img{
+  height: 150px;
+  width: 220px;
+}
+{% endblock %}
+{% block body %}
+<div class="cards">
+{% for blogs in newblog %}\
+
+<div class="card" style="width: 14rem;">
+    <img src="/media/{{blogs.0.image}}" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">{{blogs.0.category}}</h5>
+      <p class="card-text">{{blogs.0.content|slice:"0:100"}}</p>
+      <a href="/blog/blogpost/{{blogs.0.post_id}}"><button  Id="{{blogs.0.post_id}}" class="btn btn-primary">Read</button></a>
+    </div>
+  </div>
+
+  {% endfor %}
+</div>
+{% endblock %}
