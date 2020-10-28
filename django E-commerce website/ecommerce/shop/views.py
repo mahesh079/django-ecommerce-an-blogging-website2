@@ -42,7 +42,7 @@ def tracker(request):
         order=Orders.objects.filter(order_id=orderid)
         if len(order)>0:
             update=orderupdate.objects.filter(orderid=orderid)
-            print(update)
+            # print(update)
             status=[]
             date=[]
             for item in update:

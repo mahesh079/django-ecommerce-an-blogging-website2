@@ -21,6 +21,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 # to add media directory
 from . import views
+
+admin.site.site_header="My Amazon and My Blog admin"
+admin.site.site_title="My amazon and Blog admin login"
+admin.site.index_title="Wellcome to My Amazon and My Blog admin pannel"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('shop/',include('shop.urls')),

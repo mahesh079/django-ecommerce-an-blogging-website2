@@ -11,8 +11,21 @@ h1{
 p{
   margin: 15px 15px;
 }
+.col-md-1 img{
+  height: 40px;
+  width: 35px;
+}
+.repimg img{
+  height: 25px;
+  width: 22px;
+}
+.repimg{
+  font-size: 13px;
+}
 {% endblock %}
 {% block body %}
+{% load humanize %}
+{% load get_dict %}
   <!-- Page Header -->
    <header class="masthead" style="background-image: url('/media/{{blog.image}}')">
     <!-- <img src="/media/{{blog.image}}" alt=""> -->
@@ -29,19 +42,87 @@ p{
       </div>
     </div>
   </header>
-  <div><p>{{blog.content}}</p></div>
+  <div></div>
   <!-- Post Content -->
   <article>
     <div class="container">
       <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
          <!-- {{str6}} -->
-           
+           <p>{{blog.content}}</p>
         </div>
       </div>
     </div>
   </article>
+  <div class="container">
+    <h6>Comments ({{comments.count}}) </h6>
+    <div class="my-2">
+   {% if user.is_authenticated %}
+       <form action="/blog/postComment" method="post">{% csrf_token %}
+      <div class="form-group">
+      <input type="text" class="form-control" name="comment" placeholder="Enter comment here">
+      <input type="hidden" name="postSno" value="{{blog.post_id}}">
+      </div>
+      <input type="hidden" name="parentsno" value="">
+      <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+    </form>
+   {% else %}
+   <p>Please login to post a comment </p>
+   {% endif %}
 
+     </div>
+    {% for comment in comments %}
+    <div class="row my-3">
+      <div class="col-md-1 "><img src="/static/blog/Super_Saiyan_Goku.png" style="border-radius: 30px"></div>
+      <div class="col-md-11 "><b>{{comment.user.username}} </b>at 
+        <span class="badge badge-secondary">{{comment.timesstamp}}</span>
+      <div>{{comment.comment}}</div>
+      {% if user.is_authenticated %}
+      <div class="reply mx-0">
+        <p>
+  <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#replybox{{comment.sno}}" aria-expanded="false" aria-controls="replybox{{comment.sno}}">
+    Reply
+  </button>
+</p>
+<div class="collapse my-2" id="replybox{{comment.sno}}">
+  <div class="card card-body">
+           <form action="/blog/postComment" method="post">{% csrf_token %}
+      <div class="form-group">
+      <input type="text" class="form-control" name="comment" placeholder="Enter your reply here">
+      <input type="hidden" name="parentsno" value="{{comment.sno}}">
+      <input type="hidden" name="postSno" value="{{comment.post_id}}">
+      </div>
+      <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+{% else %}
+  <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#replybox{{comment.sno}}" aria-expanded="false" aria-controls="replybox{{comment.sno}}" disabled="on">
+    Reply
+  </button>
+{% endif %}
+<div class="replies ">
+ {% for reply in replyDict|get_val:comment.sno %}
+ <div class="row">
+   <div class="col-md-1">
+           <div class="col-md-1 repimg"><img  class="repimg" src="/static/blog/Super_Saiyan_Goku.png" style="border-radius: 30px"></div>
+   </div>
+   <div class="col-md-11 my-2 repimg">
+      <div class="col-md-11 repimg"><b>{{reply.user.username}} </b>at 
+        <span class="badge badge-secondary repimg">{{reply.timesstamp}}</span>
+      <div class="repimg">{{reply.comment}}</div></div>
+ </div>
+</div>
+ <br>
+ {% endfor %}
+</div>
+      </div>
+    </div>
+
+    </div>
+    {% endfor %}
+ 
+  </div>
   <hr>
 
   <!-- Footer -->

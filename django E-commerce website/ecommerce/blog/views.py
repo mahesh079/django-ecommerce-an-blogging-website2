@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from .models import Blogpost
+from .models import Blogpost,Blogcomment
+from django.contrib import messages
+from blog.templatetags import get_dict
 # create your views here
 # def index(request):
 #     return HttpResponse("Index blog")
@@ -14,12 +16,10 @@ def index(request):
         cat1=Blogpost.objects.filter(category=cat)
         # n=len(cat1)
         allblogs.append(cat1)
-    print(allblogs)
+    # print(allblogs)
     params={'allblogs':allblogs}
     return render(request,'blog/index.html',params)
-def blogpost(request,id):
-    blog=Blogpost.objects.filter(post_id=id)
-    return render(request,'blog/blogpost.html',{'blog':blog[0]})
+
 def search(request):
     newblog=[]
     if request.method=='POST':
@@ -55,3 +55,40 @@ def search(request):
     return render(request,"blog/index.html", params)           
 def aboutus(request):
     return render(request,'blog/aboutus.html')
+def postComment(request):
+    if request.method=='POST':
+        comment2=request.POST.get('comment')
+        user=request.user
+        postSno=request.POST.get("postSno")
+        # print("Thi sis postSno:",postSno)
+        post=Blogpost.objects.get(post_id=postSno)
+        # print(post)
+        parentsno=request.POST.get("parentsno")
+       
+        if parentsno=="":
+            comment=Blogcomment(comment=comment2,user=user,post=post)
+            comment.save()
+            messages.success(request,"Your comment has been posted successfully")
+        else:
+            parent=Blogcomment.objects.get(sno=parentsno)
+            comment=Blogcomment(comment=comment2,user=user,post=post,parent=parent)
+            comment.save()
+            messages.success(request,"Your reply has been posted successfully")
+        # comment=Blogcomment(comment=comment2,user=user,post=post)
+    return redirect(f"/blog/blogpost/{post.post_id}")
+
+def blogpost(request,id):
+    blog=Blogpost.objects.filter(post_id=id).first()
+    comments=Blogcomment.objects.filter(post=blog,parent=None)
+    replies=Blogcomment.objects.filter(post=blog).exclude(parent=None)
+    replyDict={}
+    for reply in replies:
+        if reply.parent.sno not in replyDict.keys():
+            replyDict[reply.parent.sno]=[reply]
+        else:
+            replyDict[reply.parent.sno].append(reply)
+    # print(replyDict)
+    # print("this is a comment:",comments, "This is a reply:",replies)
+    # print(request.user)
+    context={'blog':blog,'comments':comments,'user':request.user,'replyDict':replyDict}
+    return render(request,'blog/blogpost.html',context)
